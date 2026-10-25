@@ -78,7 +78,7 @@ final class HingeInput {
             isHingeAvailable = true
             source = .hinge // A real fold beats every fallback.
         }
-        angleDegrees = angle
+        self.angleDegrees = angle
         guard source == .hinge else { return }
         ingest((angle - Self.gripLowAngle) / (Self.gripHighAngle - Self.gripLowAngle))
     }

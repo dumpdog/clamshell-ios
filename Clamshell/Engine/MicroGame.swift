@@ -44,7 +44,7 @@ struct StageLayout {
 
 /// Every game in the rotation. Add yours here.
 enum MicroGameCatalog {
-    static let factories: [(Int) -> any MicroGame] = [
+    static let factories: [@MainActor (Int) -> any MicroGame] = [
         { ChompGame(difficulty: $0) },
         { DrawbridgeGame(difficulty: $0) },
         { BalloonGame(difficulty: $0) },

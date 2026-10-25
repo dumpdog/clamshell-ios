@@ -1,0 +1,443 @@
+<title>Clamshell Build Plan</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one reading column with wide tables in their own scroll boxes. The fold motif is a hinge line that splits the hero. */
+:root {
+  --bg: #f2f3f7;
+  --surface: #ffffff;
+  --fg: #171a2b;
+  --muted: #5b6078;
+  --line: #d9dbe6;
+  --accent: #1f8f55;     /* chomp green */
+  --accent-2: #e2731c;   /* hinge orange */
+  --accent-soft: #dff2e7;
+  --bar: #c9ccdb;
+  --code-bg: #e9ebf3;
+  --display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", "Helvetica Neue", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11131d; --surface: #191c29; --fg: #e8e9f2; --muted: #9da2bb; --line: #2c3043;
+    --accent: #45c47e; --accent-2: #f39a4b; --accent-soft: #1c3427; --bar: #353a52; --code-bg: #232739;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11131d; --surface: #191c29; --fg: #e8e9f2; --muted: #9da2bb; --line: #2c3043;
+  --accent: #45c47e; --accent-2: #f39a4b; --accent-soft: #1c3427; --bar: #353a52; --code-bg: #232739;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font: 17px/1.6 var(--body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 80px;
+}
+main { max-width: 860px; margin: 0 auto; display: grid; gap: 56px; }
+section { display: grid; gap: 16px; min-width: 0; }
+h1, h2, h3 { font-family: var(--display); line-height: 1.1; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.6rem, 8vw, 4.6rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: clamp(1.6rem, 4vw, 2.1rem); font-weight: 800; }
+h3 { font-size: 1.2rem; font-weight: 800; }
+p, ul, ol { margin: 0; max-width: 68ch; }
+ul, ol { padding-left: 1.3em; display: grid; gap: 6px; }
+a { color: var(--accent); }
+code { font: 0.86em var(--mono); background: var(--code-bg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+pre { font: 13.5px/1.55 var(--mono); background: var(--code-bg); padding: 14px 16px; border-radius: 8px; overflow-x: auto; margin: 0; }
+pre code { background: none; padding: 0; }
+.eyebrow { font: 600 12px var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-2); }
+.muted { color: var(--muted); }
+.small { font-size: 0.9rem; }
+
+/* Hero: the hinge line */
+.hero { display: grid; gap: 18px; }
+.hinge { position: relative; height: 2px; background: var(--line); margin-block: 6px; }
+.hinge::after { content: ""; position: absolute; left: 50%; top: -5px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent-2); transform: translateX(-50%); }
+.lede { font-size: 1.2rem; max-width: 62ch; }
+.verdict { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: 16px 18px; border-radius: 0 8px 8px 0; display: grid; gap: 8px; }
+
+/* Fact grid */
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.fact { background: var(--surface); padding: 14px 16px; display: grid; gap: 2px; align-content: start; }
+.fact b { font: 800 1.35rem var(--display); }
+.fact span { color: var(--muted); font-size: 0.88rem; }
+
+/* Tables */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.93rem; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 600 11.5px var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.num { font-variant-numeric: tabular-nums; text-align: center; white-space: nowrap; }
+td.total { font: 800 1.05rem var(--display); white-space: nowrap; }
+.score-bar { display: block; height: 5px; background: var(--bar); border-radius: 3px; margin-top: 4px; width: 70px; }
+.score-bar i { display: block; height: 100%; border-radius: 3px; background: var(--accent); }
+tr.win td { background: var(--accent-soft); }
+.tier { font: 600 11px var(--mono); letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 7px; border-radius: 99px; white-space: nowrap; border: 1px solid currentColor; }
+.tier.breakout { color: var(--accent); }
+.tier.strong { color: var(--accent-2); }
+.tier.niche { color: var(--muted); }
+.idea-name { font-weight: 700; }
+
+/* Game cards */
+.games { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.game { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 4px; align-content: start; }
+.game h3 { font-size: 1.05rem; }
+.game .mech { font: 600 11px var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-2); }
+.game.built { border-color: var(--accent); }
+
+/* Timeline */
+.milestones { display: grid; gap: 0; border-left: 2px solid var(--line); margin-left: 6px; }
+.ms { position: relative; padding: 0 0 22px 22px; display: grid; gap: 4px; }
+.ms::before { content: ""; position: absolute; left: -7px; top: 6px; width: 12px; height: 12px; border-radius: 50%; background: var(--surface); border: 2px solid var(--accent); }
+.ms.done::before { background: var(--accent); }
+.ms .when { font: 600 12px var(--mono); color: var(--muted); letter-spacing: 0.05em; }
+
+.two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.two-col > div { display: grid; gap: 10px; align-content: start; min-width: 0; }
+.callout { border: 1px dashed var(--accent-2); border-radius: 10px; padding: 14px 16px; display: grid; gap: 6px; }
+.sources { font-size: 0.85rem; color: var(--muted); }
+.sources ul { gap: 2px; }
+pre.mermaid { background: var(--surface); border: 1px solid var(--line); text-align: center; }
+@media (prefers-reduced-motion: no-preference) { a { transition: color .15s; } }
+</style>
+
+<main>
+
+<header class="hero">
+  <div class="eyebrow">Build plan · iPhone Duo · 25 Oct 2026</div>
+  <h1>Clamshell</h1>
+  <div class="hinge" aria-hidden="true"></div>
+  <p class="lede">Tiny games you play by folding your phone. Snap it shut to chomp a burger, pump it like an accordion, hold a drawbridge at exactly 40°. Each game lasts five seconds, and every run ends with a clip ready to post.</p>
+  <div class="verdict">
+    <strong>The pick:</strong>
+    <p>Of 15 ideas, a fold-controlled party game scored highest (8.4/10). It's the only kind of app that needs the hinge to work at all, it reads in a 6-second video with no explanation, and several runner-up ideas fit inside it as extra games. A starter Xcode project with 4 playable games is ready in <code>clamshell/</code>.</p>
+  </div>
+</header>
+
+<section id="device">
+  <div class="eyebrow">Ground truth</div>
+  <h2>What the iPhone Duo actually is</h2>
+  <p>The Duo isn't a rumor. Apple announced it on 9 September 2026, and it shipped on 23 October running iOS 27.1. The facts below come from Apple's newsroom, the MacRumors roundup, and Apple's four iPhone Duo developer tech talks.</p>
+  <div class="facts">
+    <div class="fact"><b>7.6″ + 5.4″</b><span>Inner and outer displays, same aspect ratio, 120 Hz</span></div>
+    <div class="fact"><b>Book fold</b><span>Hinge with over 100 parts. Closed, partly open, flat</span></div>
+    <div class="fact"><b>$1,999</b><span>Starting price. Heaviest iPhone at 254 g</span></div>
+    <div class="fact"><b>A20 Pro</b><span>2 nm, vapor chamber, dual Neural Engine</span></div>
+    <div class="fact"><b>Touch ID</b><span>Side button. No Face ID, under-display inner camera</span></div>
+    <div class="fact"><b>Few apps ready</b><span>Netflix, Zoom, Slack, Detail. Even Safari felt cramped</span></div>
+  </div>
+
+  <h3>The APIs that matter for us</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Capability</th><th>API (from the tech talks)</th><th>What Clamshell does with it</th></tr></thead>
+    <tbody>
+      <tr><td>Live hinge angle</td><td><code>.onHingeChange { _, ctx in ctx.hinge?.angle }</code>, or <code>UIHingeInteraction</code> in UIKit</td><td>The controller. Every game reads one number: how open the phone is.</td></tr>
+      <tr><td>Where the fold is</td><td><code>GeometryProxy.reservedRegions(kind: .division, options: .includeInactive)</code></td><td>Lines the monster's jaws up with the real crease, in either pose.</td></tr>
+      <tr><td>Two-pane layouts</td><td><code>ArrangementView</code>, <code>.arrangementViewStyle(.split / .overlay)</code></td><td>Menus and leaderboards: game list on one half, details on the other.</td></tr>
+      <tr><td>Outer screen while open</td><td><code>.sceneAccessory { CameraCaptureAccessory(…) }</code></td><td>Party Mode: scoreboard faces the room while the camera films reactions.</td></tr>
+      <tr><td>Both front cameras</td><td><code>.builtInInnerUltraWideCamera</code>, <code>AVCaptureDeviceDirectionCoordinator</code></td><td>Reaction cam picture-in-picture inside shared clips.</td></tr>
+      <tr><td>Testing</td><td>Xcode 27.1 Device Hub, iPhone Duo simulator with fold controls</td><td>Lets us develop before touching the hardware.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout">
+    <strong>Assumptions I'm making</strong>
+    <ul class="small">
+      <li>API names are as Apple showed them in the talks. I couldn't check SDK headers from here, so every Duo-only call is in one file (<code>DuoSupport.swift</code>) behind a <code>DUO_SDK</code> flag.</li>
+      <li>The hinge angle updates smoothly, at least 30 times a second, while the phone is moving. Apple's guitar pitch-bend demo suggests it does.</li>
+      <li>About 0° is closed and about 180° is flat. The code learns the real range as it goes.</li>
+      <li>Third-party apps can show content on the outer screen while the phone is open <em>only</em> through scene accessories such as <code>CameraCaptureAccessory</code>, which needs an active camera session. That rules out a true two-player, two-screen game.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="ideas">
+  <div class="eyebrow">Brainstorm</div>
+  <h2>15 ideas, scored</h2>
+  <p>Each idea gets 1 to 10 on five axes. The total is weighted toward virality because that was the brief: <b>Viral 35%</b>, <b>Feasible</b> for one developer in 6 weeks <b>20%</b>, <b>Retention</b> (do people come back) <b>15%</b>, <b>Defensible</b> (won't be copied or built into iOS by Apple) <b>15%</b>, <b>Money 15%</b>.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>#</th><th>Idea</th><th>Viral</th><th>Feas.</th><th>Ret.</th><th>Def.</th><th>Money</th><th>Total</th><th>Popularity</th></tr></thead>
+    <tbody id="idea-rows"></tbody>
+  </table></div>
+  <p class="small muted">Popularity is my forecast of how far each idea spreads beyond Duo owners: <b>Breakout</b> means it can reach a general TikTok audience, <b>Strong</b> means a loyal Duo niche plus press, and <b>Niche</b> means it's useful but nobody shares it.</p>
+  <div class="two-col">
+    <div>
+      <h3>Why Clamshell wins</h3>
+      <ul>
+        <li><b>Only possible on a fold.</b> Most Duo apps are just a bigger layout. Here the hinge <em>is</em> the game, so Apple has a reason to feature it.</li>
+        <li><b>Reads without sound.</b> Someone biting a burger with a $2,000 phone is understood in one second.</li>
+        <li><b>Built-in sharing.</b> ReplayKit keeps the last 15 seconds on hand. One tap after a run, and the clip is ready.</li>
+        <li><b>Absorbs the runners-up.</b> The accordion, the combination lock and the clapperboard all become micro-games.</li>
+        <li><b>Tilt mode.</b> Friends without a Duo can play by tilting their phone, so every share can turn into an install.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Strong runners-up</h3>
+      <ul>
+        <li><b>Fold Pet</b> (7.35): a creature that lives in the hinge. Closing the phone tucks it into bed, and it sleeps in StandBy. It retains better than Clamshell but spreads more slowly. It's the best version 2 to add, or a cosmetic mascot.</li>
+        <li><b>Two-Face Interview Cam</b> (7.0): street-interview tool. The question card and a live preview face the guest on the outer screen. Creators would pay for it, but Apple's Duo Preview already covers half of it.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="product">
+  <div class="eyebrow">The product</div>
+  <h2>How Clamshell plays</h2>
+  <p>A run works like WarioWare. A random micro-game flashes its verb ("CHOMP!") for under a second, then you have 3 to 8 seconds to do it with the fold. Win and the next one is faster. Every fourth win raises the speed. You have four lives. A run lasts 1 to 3 minutes, which is the right length for a clip and for passing the phone around.</p>
+  <h3>Launch lineup: 12 games</h3>
+  <div class="games">
+    <div class="game built"><div class="mech">Snap shut · built</div><h3>Chomp</h3><p class="small">The phone is a mouth. Bite the snack when it's between the jaws.</p></div>
+    <div class="game built"><div class="mech">Hold an angle · built</div><h3>Drawbridge</h3><p class="small">Match the ghost bridge and hold steady so the boat can pass.</p></div>
+    <div class="game built"><div class="mech">Pump · built</div><h3>Balloon</h3><p class="small">Fold and unfold fast to inflate it before time runs out.</p></div>
+    <div class="game built"><div class="mech">Slow speed · built</div><h3>Sneak</h3><p class="small">Open the book slowly enough that the dragon stays asleep.</p></div>
+    <div class="game"><div class="mech">Angle sequence</div><h3>Safe Cracker</h3><p class="small">Find the 3-angle combination by feel. Haptic clicks near each number.</p></div>
+    <div class="game"><div class="mech">Rhythm</div><h3>Clapper</h3><p class="small">Close the phone on the beat, like a film slate.</p></div>
+    <div class="game"><div class="mech">Bellows</div><h3>Squeezebox</h3><p class="small">Play a 4-note tune on an accordion. Fold speed sets the volume.</p></div>
+    <div class="game"><div class="mech">Pull back</div><h3>Catapult</h3><p class="small">Open past flat to wind up, then let go to launch at the castle.</p></div>
+    <div class="game"><div class="mech">Tabletop pose</div><h3>Pocket Pong</h3><p class="small">Prop it like a laptop. Ball on top, paddle on the bottom half.</p></div>
+    <div class="game"><div class="mech">Shield</div><h3>Umbrella</h3><p class="small">Angle the top half to block the rain coming in.</p></div>
+    <div class="game"><div class="mech">Flip</div><h3>Pancake</h3><p class="small">Flick it open to toss the pancake. Catch it flat.</p></div>
+    <div class="game"><div class="mech">Freeze</div><h3>Statue</h3><p class="small">Don't move the hinge at all while the guard looks.</p></div>
+  </div>
+  <div class="two-col">
+    <div>
+      <h3>Modes</h3>
+      <ul>
+        <li><b>Solo run</b>: endless, with a Game Center leaderboard.</li>
+        <li><b>Daily Fold</b>: the same seeded 10-game run for everyone, once a day. It ends with a shareable result grid (🟩🟥🟩🟩…), the way Wordle does.</li>
+        <li><b>Party Mode</b>: pass and play. On a Duo, the outer screen shows the scoreboard to the room while the inner camera records reactions.</li>
+        <li><b>Tilt Mode</b>: any iPhone running iOS 26 can play by tilting.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>What makes it feel good</h3>
+      <ul>
+        <li>Input to screen in under 30 ms. The fold has to feel like the jaw.</li>
+        <li>Core Haptics on every bite, click and pop, tuned per game.</li>
+        <li>Bold, loud art that reads on a phone screen inside a TikTok.</li>
+        <li><b>No slamming.</b> Given the hinge-crack reports, wins reward control, not force. See Risks.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="architecture">
+  <div class="eyebrow">Engineering</div>
+  <h2>Architecture</h2>
+  <p>A single SwiftUI app. Games never touch the hinge API. They read a normalized <code>HingeFrame</code> (openness 0 to 1, velocity, dt), so the same game runs on the real hinge, on tilt, or on a debug slider.</p>
+<pre class="mermaid">
+flowchart LR
+  subgraph Input
+    H[onHingeChange<br/>iPhone Duo] --> HI
+    M[CoreMotion tilt<br/>any iPhone] --> HI
+    S[Debug slider<br/>Simulator] --> HI
+    HI[HingeInput<br/>calibrate + smooth]
+  end
+  HI -->|HingeFrame| GS[GameSession<br/>run loop, lives, speed]
+  GS --> MG[MicroGame protocol<br/>Chomp, Drawbridge, ...]
+  MG -->|draws| C[Canvas + TimelineView<br/>rotated to the fold]
+  R[reservedRegions<br/>fold frame] --> C
+  GS --> SV[Services]
+  SV --> RK[ReplayKit clip buffer]
+  SV --> GK[Game Center]
+  SV --> SK[StoreKit 2]
+  SV --> HP[Core Haptics]
+</pre>
+  <div class="two-col">
+    <div>
+      <h3>Key decisions</h3>
+      <ul>
+        <li><b>Canvas instead of SpriteKit</b> for version 1. Each game is around 100 lines of drawing, with no scene graph. If a game needs physics (Catapult, Pancake), move that one to SpriteKit inside a <code>SpriteView</code>.</li>
+        <li><b>Canonical stage.</b> Games always draw with a horizontal fold, and the stage view rotates the canvas when the device is in book pose.</li>
+        <li><b>Per-frame state isn't observed.</b> Games and the clock are <code>@ObservationIgnored</code>, so SwiftUI only rebuilds views when the phase changes.</li>
+        <li><b>One Duo file.</b> If an SDK name differs from the talks, only <code>DuoSupport.swift</code> needs fixing.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Code layout (already scaffolded)</h3>
+<pre>Clamshell/
+  App/       ClamshellApp, RootView
+  Input/     HingeInput, MotionHingeProvider,
+             DuoSupport  (DUO_SDK only)
+  Engine/    MicroGame, GameSession
+  Games/     Chomp, Drawbridge, Balloon, Sneak
+  UI/        GameStage, HUD, Menu, GameOver
+  Services/  ClipRecorder, GameCenter, Haptics</pre>
+    </div>
+  </div>
+
+  <h3>Frameworks, and what each is for</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Framework</th><th>Use</th><th>Milestone</th></tr></thead>
+    <tbody>
+      <tr><td>SwiftUI + Observation</td><td>App shell, HUD, menus, <code>Canvas</code> and <code>TimelineView(.animation)</code> game rendering</td><td>M0</td></tr>
+      <tr><td>iPhone Duo SwiftUI APIs</td><td><code>onHingeChange</code>, <code>reservedRegions</code>, <code>ArrangementView</code> for menus</td><td>M0 / M2</td></tr>
+      <tr><td>CoreMotion</td><td>Tilt Mode fallback, so non-Duo iPhones can play</td><td>M0</td></tr>
+      <tr><td>Core Haptics</td><td>Custom feel per game: detents for Safe Cracker, a crunch for Chomp</td><td>M1</td></tr>
+      <tr><td>AVFAudio (<code>AVAudioEngine</code>)</td><td>Low-latency sound effects, plus Squeezebox pitch from fold speed</td><td>M1</td></tr>
+      <tr><td>SpriteKit</td><td>Only for the physics games (Catapult, Pancake, Pong)</td><td>M2</td></tr>
+      <tr><td>ReplayKit</td><td><code>startClipBuffering</code> / <code>exportClip</code> keep the last 15 s</td><td>M0 → M3</td></tr>
+      <tr><td>AVFoundation</td><td>Reaction cam from the inner camera, composited into clips with <code>AVMutableComposition</code>, plus a watermark</td><td>M3</td></tr>
+      <tr><td>Scene accessories</td><td><code>CameraCaptureAccessory</code> puts the Party Mode scoreboard on the outer screen</td><td>M3</td></tr>
+      <tr><td>GameKit</td><td>Leaderboards (all-time, daily), achievements, Daily Fold challenge</td><td>M4</td></tr>
+      <tr><td>StoreKit 2</td><td>Full Pack unlock and cosmetic skins, with <code>SubscriptionStoreView</code> available if we add a pass later</td><td>M4</td></tr>
+      <tr><td>WidgetKit</td><td>"Daily Fold is ready" widget and a StandBy streak face</td><td>M5</td></tr>
+      <tr><td>App Intents</td><td>"Start a Clamshell run" with Siri and Shortcuts, and a Control Center control</td><td>M5</td></tr>
+      <tr><td>TipKit</td><td>First-run coaching ("open wide…")</td><td>M5</td></tr>
+      <tr><td>TelemetryDeck (third party)</td><td>Privacy-friendly funnel: install → first run → clip shared</td><td>M5</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="milestones">
+  <div class="eyebrow">Schedule</div>
+  <h2>Milestones: launch before the holidays</h2>
+  <p>The target is <b>7 December 2026</b>. Many Duos will be unwrapped on 25 December, and new owners search the App Store for "apps for my fold." Apple editorial also builds its holiday collections in early December.</p>
+  <div class="milestones">
+    <div class="ms done"><div class="when">Done tonight</div><h3>M0 · Scaffold</h3><p>Xcode project, hinge, tilt and slider input, run loop, 4 games, clip export, Game Center stub.</p></div>
+    <div class="ms"><div class="when">26–28 Oct</div><h3>M1 · It feels right</h3><p>Build on the Duo and calibrate the angle range and latency. Tune Chomp until it feels like a jaw. Add Core Haptics and sound. <b>Exit:</b> five friends play for 3 minutes without being told how.</p></div>
+    <div class="ms"><div class="when">29 Oct – 9 Nov</div><h3>M2 · Content</h3><p>Grow to 12 games. Add a difficulty curve, and art and music passes. Make an <code>ArrangementView</code> menu for the inner screen.</p></div>
+    <div class="ms"><div class="when">10–16 Nov</div><h3>M3 · Growth loop</h3><p>Reaction-cam clips with a watermark and end card. Add the Daily Fold result grid and Party Mode with the outer-screen scoreboard.</p></div>
+    <div class="ms"><div class="when">17–23 Nov</div><h3>M4 · Store</h3><p>StoreKit 2 unlock and skins, leaderboards, achievements, privacy label, App Store screenshots made in the Duo simulator.</p></div>
+    <div class="ms"><div class="when">24 Nov – 4 Dec</div><h3>M5 · TestFlight</h3><p>Public beta with 200 people from r/iphone and Duo forums. Add widgets, App Intents and TipKit. Fix crashes, tune difficulty. Submit around 1 December.</p></div>
+    <div class="ms"><div class="when">7 Dec</div><h3>M6 · Launch</h3><p>Release with a creator drop at the same time (see the launch plan). Ship content updates every two weeks after that: 2 new games plus a seasonal skin.</p></div>
+  </div>
+</section>
+
+<section id="money">
+  <div class="eyebrow">Business</div>
+  <h2>Monetization</h2>
+  <div class="two-col">
+    <div>
+      <h3>Model: free to try, pay once</h3>
+      <ul>
+        <li><b>Free:</b> 6 games, solo runs, the Daily Fold, Tilt Mode.</li>
+        <li><b>Full Pack, $4.99 one time:</b> all games, Party Mode, every future game. People who paid $2,000 for a phone buy a $5 toy without thinking. Party games also sell better without a subscription.</li>
+        <li><b>Skins, $0.99–$1.99:</b> monster jaws, a retro handheld shell, a seasonal theme.</li>
+        <li><b>No ads.</b> They'd ruin clips, and the audience is premium.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Rough math (assumptions, not data)</h3>
+      <ul>
+        <li>Suppose 10 million Duos are sold by mid-2027, a guess based on a $2,000 launch.</li>
+        <li>3% install it, about 300,000 people. Tilt Mode adds non-Duo installs from clips that spread.</li>
+        <li>8% of installs buy the Full Pack at $4.99, about $120,000, plus skins, before Apple's 15% small-business cut.</li>
+        <li>The upside is one breakout clip. A single viral "phone eats burger" video can push installs well past 3%.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="launch">
+  <div class="eyebrow">Go to market</div>
+  <h2>Launch and viral strategy</h2>
+  <div class="two-col">
+    <div>
+      <h3>Built into the product</h3>
+      <ul>
+        <li><b>Clip in one tap</b> after every run, with a reaction cam picture-in-picture, a small "Clamshell" watermark and an end card that says "Play it on any iPhone."</li>
+        <li><b>Daily Fold result grid</b> that can be pasted into group chats.</li>
+        <li><b>Party Mode</b>: the outer screen faces the room, so everyone in the room watches and wants a turn.</li>
+        <li><b>Tilt Mode</b> means a share never dead-ends with "you need a Duo."</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Outside the product</h3>
+      <ul>
+        <li><b>Hero clip:</b> "My $2,000 phone ate my lunch." Chomp with a real burger behind the phone.</li>
+        <li><b>Seeding:</b> 20 tech creators who already posted Duo unboxings get TestFlight a week early. Their audience owns, or wants, a Duo.</li>
+        <li><b>Apple pitch:</b> submit to App Store editorial and the "Apps for iPhone Duo" collection. Apple needs showcase apps that use the hinge.</li>
+        <li><b>Press angle:</b> "The first game where the fold is the controller," pitched to MacRumors, 9to5Mac and The Verge, the way the Walkman app got covered.</li>
+        <li><b>#ChompChallenge</b>: best Daily Fold score each week wins a skin.</li>
+        <li>Product Hunt and r/iphone on launch day, with a dev-diary thread on X and Threads.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="risks">
+  <div class="eyebrow">Risks</div>
+  <h2>What could sink it</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Risk</th><th>Mitigation</th></tr></thead>
+    <tbody>
+      <tr><td><b>Hinge wear and "Crackgate."</b> A game that makes people fold a $2,000 phone hundreds of times could get blamed for cracked screens.</td><td>Cap pump games at about 8 folds. Reward controlled motion over force. Show a gentle "no slamming" note on first run. Track folds per session and add a cooldown.</td></tr>
+      <tr><td>API names or behavior differ from the tech talks</td><td>All Duo calls sit in one file. Day 1 on the device is spent calibrating.</td></tr>
+      <tr><td>Hinge updates are too slow for fast games</td><td>Interpolate between samples, lean on hold and slow games, and widen timing windows.</td></tr>
+      <tr><td>Apple builds fold games into iOS, or a big studio copies the idea</td><td>Ship first and ship content every two weeks. The brand and the daily habit are the moat.</td></tr>
+      <tr><td>App Review rejects the outer-screen scoreboard</td><td>It's a Party Mode extra, with a real camera recording. Clamshell works fully without it.</td></tr>
+      <tr><td>Small install base</td><td>Tilt Mode on every iPhone running iOS 26. The Duo is the hook, not the limit.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="morning">
+  <div class="eyebrow">Tomorrow</div>
+  <h2>First hour on the Mac</h2>
+  <ol>
+    <li>Install Xcode 27.1 and open <code>clamshell/Clamshell.xcodeproj</code>. If it won't open, run <code>xcodegen</code>.</li>
+    <li>Set your Team and bundle ID. Run on any simulator in <b>Slider</b> mode to check the core loop.</li>
+    <li>Add <code>DUO_SDK</code> to Active Compilation Conditions, then fix any API name mismatches in <code>DuoSupport.swift</code>.</li>
+    <li>Run on the iPhone Duo simulator in Device Hub and confirm the menu says "Fold detected."</li>
+    <li>Run on your Duo and play Chomp 20 times. Write down what feels laggy. That's the M1 to-do list.</li>
+  </ol>
+  <p class="muted small">The code has never been compiled. I had no Mac or Swift compiler tonight, so expect a handful of small fixes on the first build. The README lists the likely spots.</p>
+</section>
+
+<section class="sources">
+  <h3>Sources</h3>
+  <ul>
+    <li><a href="https://www.apple.com/newsroom/2026/09/apple-unveils-iphone-duo/">Apple Newsroom: Apple unveils iPhone Duo</a></li>
+    <li><a href="https://www.apple.com/newsroom/2026/10/open-up-to-new-possibilities-with-iphone-duo/">Apple Newsroom: Open up to new possibilities with iPhone Duo</a></li>
+    <li><a href="https://www.macrumors.com/roundup/iphone-duo/">MacRumors: iPhone Duo roundup</a></li>
+    <li><a href="https://developer.apple.com/videos/play/tech-talks/111461/">Tech talk 111461: Prepare your app for iPhone Duo</a></li>
+    <li><a href="https://developer.apple.com/videos/play/tech-talks/111463/">Tech talk 111463: Strike a pose with adaptive layouts on iPhone Duo</a></li>
+    <li><a href="https://developer.apple.com/kr/videos/play/tech-talks/111464/">Tech talk 111464: Multiple displays and scenes, including hinge APIs</a></li>
+    <li><a href="https://developer.apple.com/jp/videos/play/tech-talks/111465/">Tech talk 111465: Camera experiences on iPhone Duo</a></li>
+    <li><a href="https://www.macrumors.com/2026/06/08/ios-27-hints-at-foldable-iphone-with-app-resizability-push/">MacRumors: iOS 27 app resizability push</a></li>
+  </ul>
+</section>
+
+</main>
+
+<script>
+const ideas = [
+  ["Clamshell: fold-controlled micro-game party pack", 10, 8, 7, 8, 7, "breakout", true],
+  ["Fold Pet: creature that lives in the hinge, sleeps in StandBy", 8, 7, 8, 7, 6, "breakout"],
+  ["Two-Face Interview Cam: question cards on the outer screen for the guest", 8, 6, 7, 5, 8, "strong"],
+  ["Fold Vault: notes that unlock at a secret hinge angle", 7, 8, 5, 6, 5, "strong"],
+  ["Flipbook: draw frames with Pencil, fold to flip pages", 7, 6, 6, 6, 6, "strong"],
+  ["Squeezebox: hinge accordion instrument", 8, 7, 4, 4, 4, "strong"],
+  ["Retro Gadget Kit: flip phone, Game Boy, Polaroid shells", 8, 7, 4, 3, 5, "strong"],
+  ["Pocket DJ: one deck per half, crossfade with the fold", 7, 5, 5, 6, 6, "strong"],
+  ["Clapperboard: closing the phone claps the slate and syncs audio", 5, 8, 6, 6, 5, "niche"],
+  ["Hinge Protractor: measure real-world angles with the fold", 6, 9, 5, 5, 3, "niche"],
+  ["Tabletop Coach: recipe or workout up top, controls below", 4, 7, 8, 3, 6, "niche"],
+  ["Pose Booth: prompts for the subject on the outer screen", 6, 7, 5, 2, 5, "niche"],
+  ["Face-to-face translator with outer-screen captions", 6, 4, 8, 2, 6, "niche"],
+  ["Split Study: PDF on one half, flashcards on the other", 3, 6, 8, 3, 7, "niche"],
+  ["Two-player tent-mode board games, one screen per player", 7, 3, 6, 7, 6, "niche"],
+];
+const w = { v: .35, f: .20, r: .15, d: .15, m: .15 };
+const rows = ideas.map(([name, v, f, r, d, m, tier, win]) => ({
+  name, v, f, r, d, m, tier, win, total: v*w.v + f*w.f + r*w.r + d*w.d + m*w.m
+})).sort((a, b) => b.total - a.total);
+const cell = n => `<td class="num">${n}<span class="score-bar"><i style="width:${n*10}%"></i></span></td>`;
+document.getElementById("idea-rows").innerHTML = rows.map((x, i) => `
+  <tr class="${x.win ? "win" : ""}">
+    <td class="num">${i + 1}</td>
+    <td><span class="idea-name">${x.name.split(":")[0]}</span>${x.name.includes(":") ? `<br><span class="small muted">${x.name.split(":").slice(1).join(":").trim()}</span>` : ""}</td>
+    ${cell(x.v)}${cell(x.f)}${cell(x.r)}${cell(x.d)}${cell(x.m)}
+    <td class="total">${x.total.toFixed(2)}</td>
+    <td><span class="tier ${x.tier}">${x.tier}</span></td>
+  </tr>`).join("");
+</script>

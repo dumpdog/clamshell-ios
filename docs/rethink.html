@@ -1,0 +1,117 @@
+<title>Clamshell Rethink</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: one reading column. Score table in its own scroll box. Hinge-orange marks the comfort band. */
+:root {
+  --bg: #f2f3f7; --surface: #ffffff; --fg: #171a2b; --muted: #5b6078; --line: #d9dbe6;
+  --accent: #1f8f55; --accent-2: #e2731c; --accent-soft: #dff2e7; --warn-soft: #fbe9dc; --bar: #c9ccdb;
+  --display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", "Helvetica Neue", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #11131d; --surface: #191c29; --fg: #e8e9f2; --muted: #9da2bb; --line: #2c3043;
+  --accent: #45c47e; --accent-2: #f39a4b; --accent-soft: #1c3427; --warn-soft: #3a2a1d; --bar: #353a52; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #11131d; --surface: #191c29; --fg: #e8e9f2; --muted: #9da2bb; --line: #2c3043;
+  --accent: #45c47e; --accent-2: #f39a4b; --accent-soft: #1c3427; --warn-soft: #3a2a1d; --bar: #353a52; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font: 17px/1.6 var(--body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 32px 72px; }
+main { max-width: 820px; margin: 0 auto; display: grid; gap: 44px; }
+section { display: grid; gap: 14px; min-width: 0; }
+h1, h2, h3 { font-family: var(--display); line-height: 1.1; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.2rem, 7vw, 3.6rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: clamp(1.4rem, 4vw, 1.9rem); font-weight: 800; }
+h3 { font-size: 1.1rem; font-weight: 800; }
+p, ul { margin: 0; max-width: 68ch; }
+ul { padding-left: 1.3em; display: grid; gap: 6px; }
+.eyebrow { font: 600 12px var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-2); }
+.muted { color: var(--muted); }
+.lede { font-size: 1.15rem; }
+.verdict { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: 16px 18px; border-radius: 0 8px 8px 0; display: grid; gap: 8px; }
+.band { display: grid; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
+.dial { position: relative; height: 34px; border-radius: 6px; background: var(--bar); overflow: hidden; }
+.dial .zone { position: absolute; top: 0; bottom: 0; }
+.dial .bad { background: var(--warn-soft); }
+.dial .good { background: var(--accent); opacity: .85; }
+.dial-labels { display: flex; justify-content: space-between; font: 500 12px var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.93rem; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 600 11px var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.num { text-align: center; font-variant-numeric: tabular-nums; white-space: nowrap; }
+td.total { font: 800 1.05rem var(--display); white-space: nowrap; }
+tr.win td { background: var(--accent-soft); }
+.name { font-weight: 700; }
+.games { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.game { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 4px; align-content: start; }
+.game .mech { font: 600 11px var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-2); }
+.game s { color: var(--muted); }
+</style>
+
+<main>
+  <section>
+    <div class="eyebrow">Rethink · iPhone Duo · 25 Oct 2026</div>
+    <h1>Keep the games. Stop closing the phone.</h1>
+    <p class="lede">Folding the whole phone shut to play needs two hands, takes about a second per move, and puts strain on a $1,999 hinge. The fold is still the most interesting thing about the Duo, so the fix is to change how you hold it, not to throw the idea away.</p>
+    <div class="verdict">
+      <strong>Recommendation: Clamshell Handheld.</strong>
+      <p>Hold the Duo open sideways, like a Nintendo DS. The game plays on the top half, your thumbs tap the bottom half, and the hinge only moves in small tilts inside a comfortable range. You never go below about 95°. It reuses all of the existing engine, and Fold Pet can join later as the mascot.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>The comfort band</h2>
+    <p>Every hinge game now reads its angle from this band only. "Squeeze" means tilting the top half toward you a little, never folding it shut.</p>
+    <div class="band" role="img" aria-label="Hinge range from 0 to 180 degrees. 0 to 95 is avoided, 95 to 165 is the play band.">
+      <div class="dial">
+        <div class="zone bad" style="left:0;width:52.8%"></div>
+        <div class="zone good" style="left:52.8%;width:38.9%"></div>
+      </div>
+      <div class="dial-labels"><span>0° closed</span><span>95°</span><span>165°</span><span>180° flat</span></div>
+      <p class="muted" style="font-size:.9rem">Below 95°: old Clamshell territory, now avoided. 95° to 165°: the play band. These numbers are a first guess and live in one constant to tune on your Duo.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Re-scored with hands in mind</h2>
+    <p class="muted">Each axis is 1 to 10. Weights: Comfort in the hand 30%, Only works on a Duo 20%, Viral 20%, Feasible with today's code 15%, Money and retention 15%.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Idea</th><th>Comfort</th><th>Duo-only</th><th>Viral</th><th>Feasible</th><th>Money</th><th>Total</th></tr></thead>
+        <tbody>
+          <tr class="win"><td><span class="name">Clamshell Handheld</span><br><span class="muted">DS-style grip, thumb taps plus small hinge tilts</span></td><td class="num">8</td><td class="num">8</td><td class="num">7</td><td class="num">9</td><td class="num">6</td><td class="total">7.65</td></tr>
+          <tr><td><span class="name">Fold Pet</span><br><span class="muted">Reacts to the folds you make anyway. Opening wakes it, closing tucks it in</span></td><td class="num">10</td><td class="num">8</td><td class="num">5</td><td class="num">6</td><td class="num">7</td><td class="total">7.55</td></tr>
+          <tr><td><span class="name">Crease Duel</span><br><span class="muted">Two players, phone flat on a table, the crease is the net</span></td><td class="num">9</td><td class="num">5</td><td class="num">7</td><td class="num">8</td><td class="num">5</td><td class="total">7.05</td></tr>
+          <tr><td><span class="name">Desk Prompter</span><br><span class="muted">Laptop pose on a desk: script on top, controls below</span></td><td class="num">9</td><td class="num">6</td><td class="num">4</td><td class="num">7</td><td class="num">7</td><td class="total">6.80</td></tr>
+          <tr><td><span class="name">Two-Face Interview Cam</span><br><span class="muted">Guest sees the question on the outer screen. Apple's Duo Preview overlaps</span></td><td class="num">7</td><td class="num">7</td><td class="num">5</td><td class="num">6</td><td class="num">8</td><td class="total">6.60</td></tr>
+          <tr><td><span class="name">Clamshell as built</span><br><span class="muted">Full open and close cycles</span></td><td class="num">2</td><td class="num">10</td><td class="num">8</td><td class="num">9</td><td class="num">6</td><td class="total">6.45</td></tr>
+          <tr><td><span class="name">Clamshell Squeeze only</span><br><span class="muted">Hinge-only, ±20°, no thumbs. Hard to read on video</span></td><td class="num">5</td><td class="num">9</td><td class="num">5</td><td class="num">9</td><td class="num">5</td><td class="total">6.40</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Handheld and Fold Pet are close. Handheld wins because it ships from code you already have running, and its clip still reads in a second ("my phone is a Nintendo DS"). Fold Pet is the most comfortable idea on the list, but it's a new app that spreads slowly. Tent and two-screen ideas are ruled out: a book fold can't bend backwards into a tent, and apps can only use the outer screen while open through a camera accessory.</p>
+  </section>
+
+  <section>
+    <h2>What changes in the four games</h2>
+    <div class="games">
+      <div class="game"><span class="mech">Thumb tap</span><h3>Chomp</h3><p><s>Snap the phone shut.</s> Tap when the snack is between the jaws.</p></div>
+      <div class="game"><span class="mech">Alternate thumbs</span><h3>Balloon</h3><p><s>Flap the fold.</s> Tap left, right, left, right to pump.</p></div>
+      <div class="game"><span class="mech">Small hinge tilt</span><h3>Drawbridge</h3><p>Same game, but the target angle sits inside the comfort band.</p></div>
+      <div class="game"><span class="mech">Slow hinge tilt</span><h3>Sneak</h3><p><s>Close the book first.</s> Squeeze it in a little, then open it slowly.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Try this before trusting the scores</h2>
+    <ul>
+      <li>Hold the Duo open sideways for three minutes with your thumbs on the bottom half. Does it get heavy?</li>
+      <li>Tilt the top half 20° toward you and back ten times. Is that easy, or does it need a second hand?</li>
+      <li>If tilting feels bad, the games can drop to thumbs only and the hinge just picks the mode.</li>
+    </ul>
+  </section>
+</main>

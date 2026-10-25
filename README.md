@@ -1,11 +1,18 @@
-# Clamshell: tiny games you play by folding your phone
+# Clamshell: tiny games for your open iPhone Duo
 
-A starter SwiftUI project for an iPhone Duo party game. The fold is the
-controller: chomp a burger by snapping the phone shut, pump a balloon like an
-accordion, hold a drawbridge at an exact angle, open a book slowly so a
-dragon doesn't wake up. Each game lasts 3 to 8 seconds, WarioWare style, and
-they speed up as you go. A "Clip the last 15s" button turns any run into a
-shareable video.
+A starter SwiftUI project for an iPhone Duo party game. Hold the Duo open
+sideways like a handheld console: the game plays on the top half, your
+thumbs tap the bottom half, and the hinge only moves in small tilts between
+about 95° and 165°. Bite a burger with a thumb tap, drum left-right to pump a
+balloon, tilt the top half to hold a drawbridge at an exact angle, open a book
+slowly so a dragon doesn't wake up. Each game lasts 3 to 8 seconds, WarioWare
+style, and they speed up as you go. A "Clip the last 15s" button turns any run
+into a shareable video.
+
+The first version made you close the phone fully to play. On a real Duo that
+worked but wasn't practical, so the games were reworked for a comfortable
+grip. Why, and what else was considered, is in
+[`docs/rethink.html`](docs/rethink.html).
 
 The full plan (idea scoring, architecture, milestones, monetization, launch)
 is in [`docs/plan.html`](docs/plan.html). This README covers getting the code running.
@@ -55,10 +62,13 @@ Clamshell/
 
 ### Things to check on real hardware first
 
-- **Angle convention.** `HingeInput` assumes about 0° when closed and about
-  180° when flat, and widens that range as it sees new extremes. If the
-  jaws on the menu gauge move backwards, flip the mapping in
-  `HingeInput.hingeDidChange`.
+- **Grip band.** Hinge games only read angles between
+  `HingeInput.gripLowAngle` (95°) and `gripHighAngle` (165°). The menu shows
+  the live hinge angle in Fold mode, so hold the phone how it feels natural,
+  read the number, and move the band around it. If the gauge moves
+  backwards, flip the mapping in `HingeInput.hingeDidChange`.
+- **Thumb taps.** `ThumbTouchLayer` reports every touch so two thumbs can
+  alternate fast. Check that Balloon counts both thumbs when they overlap.
 - **Update rate.** The game loop expects at least 30 hinge updates per
   second while the phone moves. If updates are slower, Chomp will feel
   laggy. Lower the smoothing in `HingeInput.ingest`, or interpolate.
@@ -80,6 +90,8 @@ Clamshell/
    `MicroGame` (`verb`, `hint`, `duration`, `update`, `draw`).
 2. Draw in the canonical stage: the fold always runs horizontally at
    `stage.foldY`. `GameStageView` rotates the canvas for the book pose.
+   Read `frame.taps` (left or right thumb) for taps and `frame.openness`
+   (0 to 1 across the grip band) for the hinge. Never ask for a full close.
 3. Add `{ YourGame(difficulty: $0) }` to `MicroGameCatalog.factories`.
 
 ## Honest status

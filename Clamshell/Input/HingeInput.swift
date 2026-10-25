@@ -2,9 +2,11 @@ import Foundation
 import Observation
 import QuartzCore
 
-/// One sample of "how open is the phone", handed to a micro-game every frame.
+/// One sample of input, handed to a micro-game every frame: how far the
+/// hinge sits inside the grip band, plus any thumb taps since the last frame.
 struct HingeFrame {
-    /// 0 = closed, 1 = flat. Already calibrated and clamped.
+    /// 0 = squeezed to the low end of the grip band, 1 = its open end.
+    /// Already calibrated and clamped. The phone never has to close.
     var openness: Double
     /// Change in openness per second, smoothed. Positive while opening.
     var velocity: Double
@@ -12,6 +14,15 @@ struct HingeFrame {
     var dt: Double
     /// Seconds since the current micro-game started.
     var elapsed: Double
+    /// Thumb taps that started since the previous frame, oldest first.
+    var taps: [ThumbSide] = []
+    /// True while at least one thumb is on the screen.
+    var isPressing = false
+}
+
+/// Which thumb tapped, split down the middle of the stage.
+enum ThumbSide {
+    case left, right
 }
 
 /// The single source of truth for fold input. Games never talk to the hinge
@@ -35,14 +46,20 @@ final class HingeInput {
     private(set) var openness: Double = 1
     private(set) var velocity: Double = 0
 
-    /// Hinge angles (degrees) that map to openness 0 and 1. The hinge
-    /// convention isn't documented beyond `Angle`, so these widen
-    /// automatically as new extremes are seen. Check them on real hardware.
-    private(set) var closedAngle: Double = 5
-    private(set) var flatAngle: Double = 175
+    /// The grip band: hinge angles (degrees) that map to openness 0 and 1.
+    /// Played held open sideways like a handheld console, so nothing below
+    /// about 95° is ever asked for. Fully closing the phone to play proved
+    /// impractical on a real Duo. Tune these on hardware.
+    nonisolated static let gripLowAngle: Double = 95
+    nonisolated static let gripHighAngle: Double = 165
+
+    /// Last raw hinge angle, shown on the menu for tuning the grip band.
+    private(set) var angleDegrees: Double?
 
     @ObservationIgnored private var lastSampleTime: CFTimeInterval?
     @ObservationIgnored private var lastFrameTime: CFTimeInterval?
+    @ObservationIgnored private var pendingTaps: [ThumbSide] = []
+    @ObservationIgnored private var touchCount = 0
     private let motion = MotionHingeProvider()
 
     init() {
@@ -61,10 +78,19 @@ final class HingeInput {
             isHingeAvailable = true
             source = .hinge // A real fold beats every fallback.
         }
-        closedAngle = min(closedAngle, angle)
-        flatAngle = max(flatAngle, angle)
+        self.angleDegrees = angle
         guard source == .hinge else { return }
-        ingest((angle - closedAngle) / max(flatAngle - closedAngle, 1))
+        ingest((angle - Self.gripLowAngle) / (Self.gripHighAngle - Self.gripLowAngle))
+    }
+
+    /// A thumb landed. `stageX` is 0…1 across the canonical stage.
+    func thumbDown(stageX: Double) {
+        pendingTaps.append(stageX < 0.5 ? .left : .right)
+        touchCount += 1
+    }
+
+    func thumbUp() {
+        touchCount = max(0, touchCount - 1)
     }
 
     func setManual(_ value: Double) {
@@ -94,11 +120,15 @@ final class HingeInput {
         lastFrameTime = time
         var v = velocity
         if let last = lastSampleTime, time - last > 0.12 { v = 0 }
-        return HingeFrame(openness: openness, velocity: v, dt: dt, elapsed: elapsed)
+        let taps = pendingTaps
+        pendingTaps.removeAll()
+        return HingeFrame(openness: openness, velocity: v, dt: dt, elapsed: elapsed,
+                          taps: taps, isPressing: touchCount > 0)
     }
 
     func resetClock() {
         lastFrameTime = nil
+        pendingTaps.removeAll()
     }
 
     private func sourceChanged() {

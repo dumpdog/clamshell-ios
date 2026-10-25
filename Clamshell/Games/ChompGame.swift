@@ -1,18 +1,17 @@
 import SwiftUI
 
-/// The phone is a mouth. Open wide, then snap it shut when the snack is
-/// between the jaws. This is the hero clip: someone "biting" a burger with
-/// a $2,000 phone.
+/// A monster lives on the crease. Tap with either thumb to bite when the
+/// snack is between its jaws. The jaws breathe with the hinge, but biting
+/// is a tap: snapping a real phone shut was too slow and too much effort.
 final class ChompGame: MicroGame {
     let verb = "CHOMP!"
-    let hint = "Open wide… snap shut on the snack"
+    let hint = "Tap to bite when the snack is in its mouth"
     let duration: Double
 
     private let speed: Double
     private let zoneHalfWidth: Double
     private let snack = ["🍔", "🍩", "🍕", "🌮", "🍎", "🧁"].randomElement()!
     private var snackX = -0.1
-    private var armed = false
     private var chomped = false
 
     init(difficulty: Int) {
@@ -23,9 +22,9 @@ final class ChompGame: MicroGame {
 
     func update(_ frame: HingeFrame) -> MicroGameOutcome? {
         snackX += speed * frame.dt
-        if frame.openness > 0.45 { armed = true }
-        if armed, frame.openness < 0.15 {
+        if !frame.taps.isEmpty {
             chomped = true
+            Haptics.tick()
             return abs(snackX - 0.5) < zoneHalfWidth ? .won : .lost(reason: "Chomped thin air")
         }
         if snackX > 1.1 { return .lost(reason: "It got away!") }
@@ -49,8 +48,8 @@ final class ChompGame: MicroGame {
             ctx.emoji(snack, at: CGPoint(x: w * snackX, y: stage.foldY), size: min(w, h) * 0.14)
         }
 
-        // Jaws follow the real fold: gap = openness.
-        let gap = frame.openness * h * 0.42
+        // Jaws hang open, breathing a little with the hinge, and slam shut on a bite.
+        let gap = chomped ? 0 : h * (0.2 + 0.08 * frame.openness)
         let jawWidth = w * 0.46
         let jawHeight = h * 0.22
         let x = (w - jawWidth) / 2

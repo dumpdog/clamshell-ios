@@ -5,7 +5,8 @@ enum MicroGameOutcome {
     case lost(reason: String)
 }
 
-/// A 3–8 second game, WarioWare style, played by folding the phone.
+/// A 3–8 second game, WarioWare style, played with thumb taps and small
+/// hinge tilts while the phone is held open sideways.
 ///
 /// Games draw in a canonical stage where the fold always runs horizontally
 /// through `stage.foldY` (the "DS / laptop" pose). `GameStageView` rotates

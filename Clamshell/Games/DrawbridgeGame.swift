@@ -1,10 +1,11 @@
 import SwiftUI
 
-/// Hold the fold at exactly the right angle so the boat can pass.
-/// Rewards fine control, and shows off that the hinge is analog.
+/// Hold the hinge at exactly the right angle so the boat can pass.
+/// Rewards fine control, and shows off that the hinge is analog. The target
+/// stays inside the grip band, so it's a small tilt of the top half.
 final class DrawbridgeGame: MicroGame {
     let verb = "HOLD IT!"
-    let hint = "Match the bridge to the ghost and hold steady"
+    let hint = "Tilt the top half to match the ghost, then hold"
     let duration: Double = 5
 
     private let target: Double
@@ -13,7 +14,7 @@ final class DrawbridgeGame: MicroGame {
     private var held: Double = 0
 
     init(difficulty: Int) {
-        target = Double.random(in: 0.35...0.75)
+        target = Double.random(in: 0.2...0.8)
         tolerance = max(0.05, 0.12 - 0.01 * Double(difficulty))
         holdNeeded = 1.2 + 0.1 * Double(difficulty)
     }

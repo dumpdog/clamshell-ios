@@ -10,9 +10,10 @@ struct MenuView: View {
             Spacer()
             Text("CLAMSHELL")
                 .font(.system(size: 52, weight: .black, design: .rounded))
-            Text("Tiny games you play by folding your phone.")
+            Text("Tiny games for your open Duo. Hold it sideways, thumbs on the bottom half.")
                 .font(.headline)
                 .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
 
             OpennessGauge(openness: hinge.openness)
                 .frame(width: 140, height: 140)
@@ -49,14 +50,18 @@ struct MenuView: View {
 
     private var inputCaption: String {
         switch hinge.source {
-        case .hinge: hinge.isHingeAvailable ? "Fold detected. Your phone is the controller." : "No hinge found on this device."
-        case .tilt: "No fold? Tilt the phone up and down instead."
-        case .manual: "Slider mode, for the Simulator and debugging."
+        case .hinge:
+            if let angle = hinge.angleDegrees {
+                return "Hinge at \(Int(angle.rounded()))°. Games use \(Int(HingeInput.gripLowAngle))° to \(Int(HingeInput.gripHighAngle))°, so you never close it."
+            }
+            return "No hinge found on this device."
+        case .tilt: return "No fold? Tilt the phone up and down instead."
+        case .manual: return "Slider mode, for the Simulator and debugging."
         }
     }
 }
 
-/// Two "panels" hinged at the bottom that mirror the current fold.
+/// Two "panels" hinged at the bottom that mirror the hinge across the grip band.
 struct OpennessGauge: View {
     var openness: Double
 
@@ -68,7 +73,7 @@ struct OpennessGauge: View {
             RoundedRectangle(cornerRadius: 12)
                 .fill(.tint)
                 .frame(width: 70, height: 110)
-                .rotation3DEffect(.degrees((1 - openness) * 170),
+                .rotation3DEffect(.degrees(180 - HingeInput.gripLowAngle - openness * (HingeInput.gripHighAngle - HingeInput.gripLowAngle)),
                                   axis: (x: 1, y: 0, z: 0), anchor: .bottom, perspective: 0.4)
         }
         .animation(.interactiveSpring, value: openness)

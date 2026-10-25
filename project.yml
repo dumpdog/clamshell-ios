@@ -2,7 +2,7 @@
 # in this folder to regenerate it from this spec.
 name: Clamshell
 options:
-  bundleIdPrefix: com.example
+  bundleIdPrefix: com.justinlum
   deploymentTarget:
     iOS: "26.0"
 settings:
@@ -16,7 +16,8 @@ targets:
     sources: [Clamshell]
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.example.clamshell
+        PRODUCT_BUNDLE_IDENTIFIER: com.justinlum.clamshell
+        DEVELOPMENT_TEAM: C45F8L9TW8
         GENERATE_INFOPLIST_FILE: YES
         MARKETING_VERSION: "0.1"
         CURRENT_PROJECT_VERSION: "1"
@@ -27,5 +28,4 @@ targets:
         INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
-        # Add DUO_SDK here once building with Xcode 27.1 (see README).
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited)"
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "DUO_SDK $(inherited)"

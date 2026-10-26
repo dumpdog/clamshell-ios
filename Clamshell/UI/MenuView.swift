@@ -3,7 +3,6 @@ import SwiftUI
 struct MenuView: View {
     @Environment(GameSession.self) private var session
     @Environment(HingeInput.self) private var hinge
-    @State private var showAirHockey = false
 
     var body: some View {
         @Bindable var hinge = hinge
@@ -24,14 +23,6 @@ struct MenuView: View {
                 Text("Play").font(.title.bold()).frame(maxWidth: 240).padding(.vertical, 8)
             }
             .buttonStyle(.glassProminent)
-
-            Button {
-                showAirHockey = true
-            } label: {
-                Label("Duo Air Hockey", systemImage: "circle.circle.fill")
-                    .font(.title3.bold()).frame(maxWidth: 240).padding(.vertical, 4)
-            }
-            .buttonStyle(.glass)
 
             if session.bestScore > 0 {
                 Text("Best: \(session.bestScore)").font(.headline)
@@ -54,9 +45,6 @@ struct MenuView: View {
             .padding(.horizontal)
         }
         .padding()
-        .fullScreenCover(isPresented: $showAirHockey) {
-            AirHockeyView()
-        }
     }
 
     private var inputCaption: String {

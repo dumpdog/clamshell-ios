@@ -5,7 +5,6 @@ import QuartzCore
 /// Duo Air Hockey. Lay the Duo flat and fully open: the fold is the center
 /// line, and each half of the inner display is one player's side.
 struct AirHockeyView: View {
-    @Environment(\.dismiss) private var dismiss
     @State private var game = AirHockeyGame()
 
     var body: some View {
@@ -39,6 +38,11 @@ struct AirHockeyView: View {
         .statusBarHidden()
         .persistentSystemOverlays(.hidden)
         .defersSystemGestures(on: .all)
+        .onChange(of: game.screen) { _, screen in
+            // Lock while a match is on (and on its result screen, for a
+            // quick rematch); free it again back on the mode chooser.
+            if screen == .choosing { OrientationLock.unlock() } else { OrientationLock.lockToCurrent() }
+        }
     }
 
     @ViewBuilder
@@ -89,9 +93,6 @@ struct AirHockeyView: View {
             .buttonStyle(.glassProminent)
             Text("First to \(AirHockeyGame.winningScore) wins.")
                 .font(.footnote).foregroundStyle(.secondary)
-            Button("Back to Clamshell") { dismiss() }
-                .buttonStyle(.glass)
-                .padding(.top, 8)
         }
         .padding(32)
         .background(.ultraThinMaterial, in: .rect(cornerRadius: 32))

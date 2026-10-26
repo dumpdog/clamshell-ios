@@ -22,9 +22,10 @@ Clamshell/
               DuoSupport                       ALL iPhone Duo–only API, behind DUO_SDK
   Engine/     MicroGame, GameSession           game protocol, catalog, run loop
   Games/      Chomp, Drawbridge, Balloon, Sneak
-  AirHockey/  Duo Air Hockey: separate mode, Duo flat and fully open, 1P vs CPU or 2P face to face
   UI/         GameStageView, HUDView, MenuView, GameOverView
   Services/   ClipRecorder (ReplayKit), GameCenterService, Haptics
+DuoAirHockey/                Duo Air Hockey, a separate app (DuoAirHockey scheme): Duo flat and
+                             fully open, 1P vs CPU (Easy/Medium/Hard) or 2P face to face
 ```
 
 ## Setup (about 10 minutes)

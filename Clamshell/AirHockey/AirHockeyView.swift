@@ -72,6 +72,11 @@ struct AirHockeyView: View {
                 .font(.headline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
+            Picker("CPU difficulty", selection: $game.difficulty) {
+                ForEach(HockeyDifficulty.allCases) { Text($0.rawValue).tag($0) }
+            }
+            .pickerStyle(.segmented)
+            .frame(maxWidth: 280)
             Button { game.start(.onePlayer) } label: {
                 Label("1 Player vs CPU", systemImage: "person.fill")
                     .font(.title2.bold()).frame(maxWidth: 280).padding(.vertical, 6)
@@ -209,7 +214,7 @@ struct HockeyRenderer {
         text("\(game.topScore)", at: CGPoint(x: w * 0.13, y: cy - scoreSize * 0.9), size: scoreSize,
              color: Self.color(for: .top).opacity(0.6), flipped: true, in: ctx)
         if game.mode == .onePlayer {
-            text("CPU", at: CGPoint(x: w / 2, y: cy * 0.45), size: w * 0.06,
+            text("CPU · \(game.difficulty.rawValue.uppercased())", at: CGPoint(x: w / 2, y: cy * 0.45), size: w * 0.06,
                  color: .white.opacity(0.15), flipped: false, in: ctx)
         }
 

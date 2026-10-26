@@ -5,6 +5,29 @@ enum HockeyMode {
     case onePlayer, twoPlayer
 }
 
+enum HockeyDifficulty: String, CaseIterable, Identifiable {
+    case easy = "Easy", medium = "Medium", hard = "Hard"
+    var id: String { rawValue }
+
+    /// CPU mallet top speed, in rink heights per second.
+    var cpuSpeed: CGFloat {
+        switch self {
+        case .easy: 0.45
+        case .medium: 0.9
+        case .hard: 1.5
+        }
+    }
+
+    /// How far the CPU slides toward the puck while guarding (0 = stays centered).
+    var shading: CGFloat {
+        switch self {
+        case .easy: 0.35
+        case .medium: 0.6
+        case .hard: 0.85
+        }
+    }
+}
+
 enum HockeySide {
     case top, bottom
 }
@@ -36,6 +59,7 @@ final class AirHockeyGame {
 
     private(set) var screen: Screen = .choosing
     private(set) var mode: HockeyMode = .onePlayer
+    var difficulty: HockeyDifficulty = .medium
 
     // Per-frame state stays out of observation so the canvas redraw doesn't
     // invalidate SwiftUI views every frame.
@@ -54,6 +78,8 @@ final class AirHockeyGame {
     @ObservationIgnored private var lastHitTime: CFTimeInterval = 0
     @ObservationIgnored private var resolving = false
     @ObservationIgnored private var owners: [HockeySide: ObjectIdentifier] = [:]
+    /// When the puck last came to a near-stop against a wall, for freeing it.
+    @ObservationIgnored private var stuckSince: CFTimeInterval?
 
     // MARK: Sizes, all relative to the rink's width
 
@@ -112,6 +138,7 @@ final class AirHockeyGame {
         let serveY = side == .top ? centerY * 0.5 : centerY + (size.height - centerY) * 0.5
         puck = CGPoint(x: size.width / 2, y: serveY)
         puckVel = .zero
+        stuckSince = nil
     }
 
     // MARK: Touch input (table space)
@@ -185,6 +212,32 @@ final class AirHockeyGame {
         let friction = CGFloat(exp(-0.35 * dt))
         puckVel.dx *= friction
         puckVel.dy *= friction
+        freeStuckPuck(now: now)
+    }
+
+    /// A puck resting against a wall or in a corner can be out of every
+    /// mallet's reach (or pinned by one). After a moment, pop it back out
+    /// toward the middle of its half.
+    private func freeStuckPuck(now: CFTimeInterval) {
+        let margin = malletRadius * 1.2
+        let nearWall = puck.x < margin || puck.x > size.width - margin
+            || puck.y < margin || puck.y > size.height - margin
+        let slow = hypot(puckVel.dx, puckVel.dy) < size.height * 0.08
+        guard nearWall && slow else {
+            stuckSince = nil
+            return
+        }
+        guard let since = stuckSince else {
+            stuckSince = now
+            return
+        }
+        guard now - since > 2 else { return }
+        let halfMid = puck.y < centerY ? centerY * 0.5 : centerY + (size.height - centerY) * 0.5
+        let dx = size.width / 2 - puck.x, dy = halfMid - puck.y
+        let len = max(hypot(dx, dy), 0.001)
+        let speed = size.height * 0.5
+        puckVel = CGVector(dx: dx / len * speed, dy: dy / len * speed)
+        stuckSince = nil
     }
 
     private func moveMallets(_ dt: Double) {
@@ -318,10 +371,10 @@ final class AirHockeyGame {
             }
         } else {
             // Guard the goal, shading toward the puck.
-            goal = CGPoint(x: size.width / 2 + (puck.x - size.width / 2) * 0.6, y: defendY)
+            goal = CGPoint(x: size.width / 2 + (puck.x - size.width / 2) * difficulty.shading, y: defendY)
         }
 
-        let maxStep = size.height * 0.9 * dt
+        let maxStep = size.height * difficulty.cpuSpeed * dt
         let dx = goal.x - top.pos.x, dy = goal.y - top.pos.y
         let dist = hypot(dx, dy)
         if dist > maxStep {

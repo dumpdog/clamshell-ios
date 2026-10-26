@@ -24,6 +24,8 @@ Clamshell/
   Games/      Chomp, Drawbridge, Balloon, Sneak
   UI/         GameStageView, HUDView, MenuView, GameOverView
   Services/   ClipRecorder (ReplayKit), GameCenterService, Haptics
+DuoAirHockey/                Duo Air Hockey, a separate app (DuoAirHockey scheme): Duo flat and
+                             fully open, 1P vs CPU (Easy/Medium/Hard) or 2P face to face
 ```
 
 ## Setup (about 10 minutes)

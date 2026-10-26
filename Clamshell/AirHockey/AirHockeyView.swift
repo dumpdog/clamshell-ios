@@ -12,8 +12,11 @@ struct AirHockeyView: View {
         GeometryReader { proxy in
             let table = TableMapping(viewSize: proxy.size, folds: FoldRegions.frames(in: proxy))
             ZStack {
-                TimelineView(.animation) { _ in
+                TimelineView(.animation) { timeline in
                     Canvas { ctx, _ in
+                        // All per-frame state is unobserved, so reading the
+                        // timeline's date is what makes the canvas redraw.
+                        _ = timeline.date
                         game.layout(size: table.size, centerY: table.centerY)
                         game.step(at: CACurrentMediaTime())
                         table.apply(to: &ctx)

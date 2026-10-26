@@ -6,6 +6,8 @@ import QuartzCore
 /// line, and each half of the inner display is one player's side.
 struct AirHockeyView: View {
     @State private var game = AirHockeyGame()
+    @State private var showingUnlock = false
+    @Environment(Store.self) private var store
 
     var body: some View {
         GeometryReader { proxy in
@@ -43,6 +45,19 @@ struct AirHockeyView: View {
             // quick rematch); free it again back on the mode chooser.
             if screen == .choosing { OrientationLock.unlock() } else { OrientationLock.lockToCurrent() }
         }
+        .sheet(isPresented: $showingUnlock) {
+            UnlockView()
+        }
+    }
+
+    /// Starts a match, or shows the unlock sheet if the free tier doesn't cover it.
+    private func play(_ mode: HockeyMode) {
+        guard store.canPlay(mode, game.difficulty) else {
+            showingUnlock = true
+            return
+        }
+        if mode == .twoPlayer { store.recordTwoPlayerMatch() }
+        game.start(mode)
     }
 
     @ViewBuilder
@@ -81,18 +96,25 @@ struct AirHockeyView: View {
             }
             .pickerStyle(.segmented)
             .frame(maxWidth: 280)
-            Button { game.start(.onePlayer) } label: {
+            Button { play(.onePlayer) } label: {
                 Label("1 Player vs CPU", systemImage: "person.fill")
                     .font(.title2.bold()).frame(maxWidth: 280).padding(.vertical, 6)
             }
             .buttonStyle(.glassProminent)
-            Button { game.start(.twoPlayer) } label: {
+            Button { play(.twoPlayer) } label: {
                 Label("2 Players, face to face", systemImage: "person.2.fill")
                     .font(.title2.bold()).frame(maxWidth: 280).padding(.vertical, 6)
             }
             .buttonStyle(.glassProminent)
             Text("First to \(AirHockeyGame.winningScore) wins.")
                 .font(.footnote).foregroundStyle(.secondary)
+            if !store.isPro {
+                Button { showingUnlock = true } label: {
+                    Text(freeTierText).font(.footnote.weight(.semibold)).multilineTextAlignment(.center)
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.yellow)
+            }
         }
         .padding(32)
         .background(.ultraThinMaterial, in: .rect(cornerRadius: 32))
@@ -107,7 +129,7 @@ struct AirHockeyView: View {
                 .foregroundStyle(HockeyRenderer.color(for: winner))
             Text("\(game.bottomScore) – \(game.topScore)")
                 .font(.system(size: 30, weight: .heavy, design: .rounded))
-            Button { game.start(game.mode) } label: {
+            Button { play(game.mode) } label: {
                 Text("Rematch").font(.title2.bold()).frame(maxWidth: 240).padding(.vertical, 6)
             }
             .buttonStyle(.glassProminent)
@@ -117,6 +139,12 @@ struct AirHockeyView: View {
         .padding(32)
         .background(.ultraThinMaterial, in: .rect(cornerRadius: 32))
         .foregroundStyle(.white)
+    }
+
+    private var freeTierText: String {
+        let left = store.twoPlayerMatchesLeft
+        let matches = left == 1 ? "1 free 2P match" : "\(left) free 2P matches"
+        return "\(matches) left today · Medium & Hard need Pro\nUnlock everything for \(store.priceText)"
     }
 
     private func winnerText(_ winner: HockeySide) -> String {

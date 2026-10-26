@@ -1,0 +1,27 @@
+{
+  "identifier" : "D0A1B2C3",
+  "nonRenewingSubscriptions" : [ ],
+  "products" : [
+    {
+      "displayPrice" : "1.99",
+      "familyShareable" : true,
+      "internalID" : "D0A1B2C4",
+      "localizations" : [
+        {
+          "description" : "Unlimited 2-player matches and the Medium and Hard CPU.",
+          "displayName" : "Duo Air Hockey Pro",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.justinlum.duoairhockey.pro",
+      "referenceName" : "Duo Air Hockey Pro",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_failTransactionsEnabled" : false,
+    "_storeKitErrors" : [ ]
+  },
+  "subscriptionGroups" : [ ],
+  "version" : { "major" : 4, "minor" : 0 }
+}

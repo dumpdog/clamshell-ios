@@ -4,10 +4,12 @@ import UIKit
 @main
 struct DuoAirHockeyApp: App {
     @UIApplicationDelegateAdaptor private var appDelegate: AppDelegate
+    @State private var store = Store()
 
     var body: some Scene {
         WindowGroup {
             AirHockeyView()
+                .environment(store)
                 .preferredColorScheme(.dark)
         }
     }
